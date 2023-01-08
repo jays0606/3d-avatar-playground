@@ -1,10 +1,6 @@
 import { Canvas } from '@react-three/fiber'
 import * as THREE from 'three'
-import Avatar from './components/Avatar'
-import Floor from './components/Floor'
-import Helpers from './components/Helpers'
-import Lights from './components/Lights'
-import Wall from './components/Wall'
+import Playground from './components/Playground'
 
 export default function App() {
   return (
@@ -18,11 +14,7 @@ export default function App() {
         antialias: true
       }}
       shadows>
-      <Avatar />
-      <Floor />
-      <Wall />
-      <Helpers />
-      <Lights />
+      <Playground />
     </Canvas>
   )
 }
