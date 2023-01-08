@@ -5,7 +5,7 @@ import Playground from './components/Playground'
 export default function App() {
   return (
     <Canvas
-      camera={{ position: [2, 2, 15], fov: 35 }}
+      camera={{ position: [2, 2, 10], fov: 35 }}
       style={{ background: ['#000000'] }}
       gl={{
         preserveDrawingBuffer: true,
