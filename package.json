@@ -1,7 +1,7 @@
 {
-  "name": "readyplayer-playground",
+  "name": "3d-avatar-playground",
   "version": "1.0.0",
-  "description": "react thee fiber reactPlayerMe playground",
+  "description": "react thee fiber 3d avatar playground",
   "keywords": [],
   "main": "src/index.jsx",
   "dependencies": {

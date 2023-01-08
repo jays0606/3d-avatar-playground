@@ -3,9 +3,7 @@ import { Stats, OrbitControls } from '@react-three/drei'
 export default function Helpers() {
   return (
     <>
-      <OrbitControls />
-      <axesHelper args={[5]} />
-      <gridHelper />
+      <OrbitControls target={[0, 0.9, 0]} />
       <Stats />
     </>
   )
