@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { loadGltf, loadAnimationClip } from '../utils/loaders'
-import { animationUrls } from '../utils/constants'
+import { animationUrls, keyDirectionOffsetMap } from '../utils/constants'
 
 export class AvatarController {
   constructor() {
@@ -10,13 +10,14 @@ export class AvatarController {
     this.actions = {}
     this.currentAction = null
 
-    this.walkDirection = new THREE.Vector3()
-    this.rotateAngle = new THREE.Vector3(0, 1, 0)
+    this.rotateAxis = new THREE.Vector3(0, 1, 0)
     this.rotateQuaternion = new THREE.Quaternion()
+    this.translateX = 0
+    this.translateZ = 0
 
     this.fadeDuration = 0.3
-    this.runVelocity = 5
-    this.walkVelocity = 2
+    this.runVelocity = 3
+    this.walkVelocity = 1.5
   }
 
   async loadModel(url) {
@@ -51,19 +52,23 @@ export class AvatarController {
     }
     if (action === 'run' || action === 'walk') {
       const shiftAngle = this.getShiftAngle(keyMap)
-      const rotateQuaternion = this.rotateQuaternion.setFromAxisAngle(
-        this.rotateAngle,
+      const [translateX, translateZ] = this.getTranslateAmount(
+        action,
         shiftAngle
       )
-      this.armature.quaternion.rotateTowards(
-        rotateQuaternion,
-        this.fadeDuration
-      )
-      
+      this.rotateQuaternion.setFromAxisAngle(this.rotateAxis, shiftAngle)
+      this.translateX = translateX
+      this.translateZ = translateZ
+    } else {
+      this.translateX = 0
+      this.translateZ = 0
     }
   }
 
   update(delta) {
+    this.scene.quaternion.rotateTowards(this.rotateQuaternion, delta * 10)
+    this.scene.position.x += this.translateX * delta
+    this.scene.position.z += this.translateZ * delta
     this.mixer.update(delta)
   }
 
@@ -78,20 +83,23 @@ export class AvatarController {
   }
 
   getShiftAngle(keyMap) {
-    const directionOffset = {
-      KeyW: Math.PI,
-      KeyA: -Math.PI / 2,
-      KeyS: 0,
-      KeyD: Math.PI / 2
-    }
-    let totalOffset = 0
-    let totalPressed = 0
+    let pressedKeys = []
     for (const [name, pressed] of Object.entries(keyMap)) {
-      if (pressed) {
-        totalOffset += directionOffset[name]
-        totalPressed += 1
+      if (!pressed) continue
+      if (['KeyW', 'KeyA', 'KeyS', 'KeyD'].includes(name)) {
+        pressedKeys.push(name.slice(-1))
       }
     }
-    return totalPressed === 0 ? 0 : totalOffset / totalPressed
+    pressedKeys = pressedKeys.sort().join('')
+    return keyDirectionOffsetMap[pressedKeys]
+  }
+
+  getTranslateAmount(action, shiftAngle) {
+    const walkDirection = new THREE.Vector3(0, 0, 1) // initial Direction Vector
+    walkDirection.applyAxisAngle(this.rotateAxis, shiftAngle)
+    const velocity = action === 'run' ? this.runVelocity : this.walkVelocity
+    const translateX = walkDirection.x * velocity
+    const translateZ = walkDirection.z * velocity
+    return [translateX, translateZ]
   }
 }
