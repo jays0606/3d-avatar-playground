@@ -66,7 +66,7 @@ export class AvatarController {
   }
 
   update(delta) {
-    this.scene.quaternion.rotateTowards(this.rotateQuaternion, delta * 10)
+    this.scene.quaternion.rotateTowards(this.rotateQuaternion, delta * 5)
     this.scene.position.x += this.translateX * delta
     this.scene.position.z += this.translateZ * delta
     this.mixer.update(delta)
@@ -95,6 +95,9 @@ export class AvatarController {
   }
 
   getTranslateAmount(action, shiftAngle) {
+    if (shiftAngle === 0) {
+      return [0, 0]
+    }
     const walkDirection = new THREE.Vector3(0, 0, 1) // initial Direction Vector
     walkDirection.applyAxisAngle(this.rotateAxis, shiftAngle)
     const velocity = action === 'run' ? this.runVelocity : this.walkVelocity
