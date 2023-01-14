@@ -50,7 +50,10 @@ export class AvatarController {
         .play()
       this.currentAction = action
     }
-    if (action === 'run' || action === 'walk') {
+    if (
+      (action === 'run' || action === 'walk') &&
+      this.shouldAvatarMove(keyMap)
+    ) {
       const shiftAngle = this.getShiftAngle(keyMap)
       const [translateX, translateZ] = this.getTranslateAmount(
         action,
@@ -70,6 +73,19 @@ export class AvatarController {
     this.scene.position.x += this.translateX * delta
     this.scene.position.z += this.translateZ * delta
     this.mixer.update(delta)
+  }
+
+  shouldAvatarMove(keyMap) {
+    let moveX = 0
+    let moveZ = 0
+    keyMap['KeyA'] && (moveX -= 1)
+    keyMap['KeyD'] && (moveX += 1)
+    keyMap['KeyW'] && (moveZ -= 1)
+    keyMap['KeyS'] && (moveZ += 1)
+    if (moveX === 0 && moveZ === 0) {
+      return false
+    }
+    return true
   }
 
   getAction(keyMap) {
@@ -95,9 +111,6 @@ export class AvatarController {
   }
 
   getTranslateAmount(action, shiftAngle) {
-    if (shiftAngle === 0) {
-      return [0, 0]
-    }
     const walkDirection = new THREE.Vector3(0, 0, 1) // initial Direction Vector
     walkDirection.applyAxisAngle(this.rotateAxis, shiftAngle)
     const velocity = action === 'run' ? this.runVelocity : this.walkVelocity
