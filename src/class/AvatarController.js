@@ -33,6 +33,9 @@ export class AvatarController {
     for (const [name, url] of Object.entries(animationUrls)) {
       const clip = await loadAnimationClip(url)
       const action = this.mixer.clipAction(clip)
+      if (name === 'jump') {
+        action.setLoop(THREE.LoopOnce, 1)
+      }
       this.actions[name] = action
     }
     this.currentAction = 'idle'
@@ -66,6 +69,10 @@ export class AvatarController {
       this.translateX = 0
       this.translateZ = 0
     }
+    if (this.shouldAvatarJump(keyMap)) {
+      const jumpAction = this.actions['jump']
+      jumpAction.play().reset()
+    }
   }
 
   update(delta) {
@@ -86,6 +93,10 @@ export class AvatarController {
       return false
     }
     return true
+  }
+
+  shouldAvatarJump(keyMap) {
+    return keyMap['Space']
   }
 
   getAction(keyMap) {
